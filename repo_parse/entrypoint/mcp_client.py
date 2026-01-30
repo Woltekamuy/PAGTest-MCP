@@ -111,5 +111,5 @@ if __name__ == "__main__":
     r3 = analyze_testcases(REPO_PATH, is_batch=True)
     print("analyze_testcases =>", r3)
 
-    r4 = generate_testcase(REPO_PATH, "ArrayStack", "[int]search(Object)")
+    r4 = generate_testcase(REPO_PATH, "SimpleQueue", "[void]enqueue(T)")
     print("generate_testcase =>", r4)

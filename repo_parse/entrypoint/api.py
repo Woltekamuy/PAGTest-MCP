@@ -267,6 +267,7 @@ def analyze_testcases(repo_path: str, is_batch: bool = False, filter_list: List[
         class_already_haved_testcase_path=config.CLASS_ALREADY_HAVED_TESTCASE_PATH
     )
     print("Run testcase analyzer finished.")
+    return "success", None
     
 def genereate_testcases(repo_path: str, target_method: str, target_class: str):
     """
@@ -293,7 +294,8 @@ def genereate_testcases(repo_path: str, target_method: str, target_class: str):
     
     status, envs = load_dotenv_file()
     if not status:
-        return "failure", envs
+        return "", "", "failure", envs
+
     API_BASE, API_KEY, MODEL_NAME = envs
     
     llm = DeepSeekLLM(
@@ -313,7 +315,7 @@ def genereate_testcases(repo_path: str, target_method: str, target_class: str):
     
     if not isinstance(target_method, dict):
         print(f".Failed to find method {target_method} in class {class_name}")
-        return "", f"Failed to find method {target_method} in class {class_name}"
+        return "", "", [], f"Failed to find method {target_method} in class {class_name}"
     
     generator = JavaTestcaseGenerator(llm=llm, repo_config=config)
     target_method_uri, generated_testclass_name, results, error = generator.refined_generate_testcases(

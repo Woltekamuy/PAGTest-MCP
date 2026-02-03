@@ -9,7 +9,7 @@ from repo_parse.analysis.testcase_analyzer import (
     #PythonTestcaseAnalyzer,
     run_testcase_analyzer
 )
-from repo_parse.common.enum import LanguageEnum
+from repo_parse.common.enum_types import LanguageEnum
 from repo_parse.generator.testcase_generator import JavaTestcaseGenerator
 from repo_parse.metainfo.java_metainfo_builder import JavaMetaInfoBuilder
 from repo_parse.metainfo.metainfo import run_build_metainfo

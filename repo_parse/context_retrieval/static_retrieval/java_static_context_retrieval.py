@@ -165,39 +165,6 @@ class JavaStaticContextRetrieval(MetaInfo):
                             _class=_class)
                         return methods, fields        
 
-    
-    def find_file_level_context(self, code_block, where, language='java'):
-        scope_graph = build_scope_graph(bytearray(code_block, encoding="utf-8"), language=language)
-        unresolved_refs = set(scope_graph.unresolved_refs_name())
-        if not unresolved_refs:
-            return None, unresolved_refs
-                
-        finds = Finds()
-        inherited_fields = self.get_inherited_fields(_class=where)
-        if inherited_fields:
-            logger.info(f"Find inherited fields for class {where['name']}.")
-            where['fields'].extend(inherited_fields.values())
-        
-        field_finds, unresolved_refs = self.find_defs_in_fileds(unresolved_refs, where)
-        if field_finds:
-            finds.find_in_fileds = field_finds
-            unresolved_refs.update(set(get_single_value_in_dict(t) for t in field_finds))
-            for t in field_finds:
-                self.find_in_repo(unresolved_ref=get_single_value_in_dict(t), 
-                                  finds=finds, unresolveds=unresolved_refs)
-                
-            if not unresolved_refs:
-                logger.info("All unresolved refs have been resolved.")
-                
-        if not unresolved_refs:
-            return finds, []
-        
-        unresolveds= set(unresolved_refs)
-        for unresolved_ref in unresolved_refs:
-            self.find_in_repo(unresolved_ref, finds, unresolveds)
-        
-        return finds, unresolveds
-    
     def find_defs_in_fileds(self, unresolved_refs: Set[str], fields: List[JavaClass]) -> Tuple[List[Dict[str, str]], Set]:
         findings = []
         unresolved = set(unresolved_refs)
@@ -408,24 +375,3 @@ class JavaStaticContextRetrieval(MetaInfo):
         
         context += "\n"
         return context
-
-    def pack_testcase_file_level_context(self, testcase: Dict):
-        original_string = testcase['original_string']
-        class_uri = testcase['class_uri']
-        testclass = self.get_testclass(uri=class_uri)
-        finds, unresolveds = self.find_file_level_context(original_string, testclass, 'java')
-        if finds is not None:
-            if finds.find_in_fileds:
-                original_string += "\nThese are all the references in the same file that are involved in the test case:"
-                original_string += str(finds.find_in_fileds)
-            if finds.class_finds:
-                original_string += "\nThe following are all the definitions of the referenced class:"
-                original_string += str(finds.class_finds)
-            if finds.record_finds:
-                original_string += "\nThe following are all the definitions of the referenced record:"
-                original_string += str(finds.record_finds)
-            if finds.interface_finds:
-                original_string += "\nThe following are all the definitions of the referenced interface:"
-                original_string += str(finds.interface_finds)
-
-        return original_string
